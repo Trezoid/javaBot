@@ -77,7 +77,7 @@ public class baseBot extends PircBot {
 			boolean s = (new File("logs").mkdir());
 			File f = new File("logs/"+channel+".txt");
 			FileWriter fw = new FileWriter(f, true);
-			fw.write(time + " " + sender + ": " + message);
+			fw.write(time + "| " + sender + ": " + message + "\n");
 			fw.close();
 		}
 		catch(Exception e){System.out.println(e.getMessage());}
