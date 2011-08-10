@@ -1,0 +1,4 @@
+Trezoid
+Trezbot
+roddenberry.freenode.net
+##trezoidsbox
