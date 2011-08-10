@@ -67,6 +67,17 @@ public class baseBot extends PircBot {
 			joinChannel(newChan);
 		}
 	}
+	public void onPart(String channel, String sender, String login, String hostname)
+	{
+		log(channel, sender, "--Has quit--");
+	}
+
+	public void onJoin(String channel, String sender, String login, String hostname)
+	{
+		log(channel, sender, "--Has joined--");
+	}
+
+	
 	public void onDisconnect()
 	{
 
