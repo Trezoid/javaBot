@@ -61,6 +61,11 @@ public class baseBot extends PircBot {
 			sendMessage(channel, "Goodbye");
 			disconnect();
 		}
+		if(message.indexOf(botName+": join") > -1 && sender.equalsIgnoreCase(owner))
+		{
+			String newChan = message.split("join ")[1];
+			joinChannel(newChan);
+		}
 	}
 	public void onDisconnect()
 	{
