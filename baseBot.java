@@ -2,6 +2,7 @@ import org.jibble.pircbot.*;
 import java.io.*;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class baseBot extends PircBot {
 	private String owner = null;
@@ -11,7 +12,13 @@ public class baseBot extends PircBot {
 
 	public baseBot(){
 		try{
+
 			File settings = new File("settings.txt");
+			if(!settings.exists())
+			{
+				firstRun();
+			}
+
 			FileReader fr = new FileReader(settings);
 			BufferedReader br = new BufferedReader(fr);
 
@@ -21,6 +28,7 @@ public class baseBot extends PircBot {
 			String channel = br.readLine();
 			while(channel != null) {
 				channels.add(channel);
+				log(channel, "", "====Bot restarted====");
 				channel = br.readLine();
 			}
 		}
@@ -28,8 +36,9 @@ public class baseBot extends PircBot {
 			
 
 		setName(botName);
+		log("","","=====Bot started=====");
 	}
-
+	
 	public static void main(String[] args){
 		baseBot bot = new baseBot();
 		bot.setVerbose(true);
@@ -44,6 +53,36 @@ public class baseBot extends PircBot {
 			bot.joinChannel(c);
 		}
 	}
+
+	public void firstRun()
+	{
+		Scanner scan = new Scanner(System.in);
+		System.out.println("It appears that you haven't set up your bots settings. Please do that now.");
+		System.out.println("First, enter you IRC nick. This will set the owner of the bot, used for some commands.");
+		String owner = scan.nextLine();
+		System.out.println("Now, enter a name for your bot. It needs to be unique on the IRC network you are using.");
+		String botName = scan.nextLine();
+		System.out.println("Thirdly, enter the network URL of the IRC network you are using (eg irc.freenode.net).");
+		String ircNet = scan.nextLine();
+		System.out.println("now enter the names of the chatrooms you want to include, with all leading characters, seperated by spaces.");
+		String[] channel = scan.nextLine().split(" ");
+
+		try{
+			File f = new File("settings.txt");
+			FileWriter fw = new FileWriter(f, true);
+			fw.write(owner +"\n");
+			fw.write(botName+"\n");
+			fw.write(ircNet+"\n");
+			for(int i = 0; i < channel.length; i++)
+			{
+				fw.write(channel[i] + "\n");
+			}
+			fw.close();
+		}
+		catch(Exception e){System.out.println(e.getMessage());}
+	}
+		 
+
 	public void onMessage(String channel, String sender, String login, String hostname, String message)
 	{
 		log(channel, sender, message);
