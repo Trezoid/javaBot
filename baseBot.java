@@ -47,24 +47,28 @@ public class baseBot extends PircBot {
 	public void onMessage(String channel, String sender, String login, String hostname, String message)
 	{
 		log(channel, sender, message);
-		if(message.equalsIgnoreCase("time"))
+		if(message.equalsIgnoreCase(botName+": time"))
 		{
 			String time = new java.util.Date().toString();
 			sendMessage(channel, sender + ": " + time);
 		}
-		if(message.equalsIgnoreCase(botName+": about"))
+		else if(message.equalsIgnoreCase(botName+": about"))
 		{
 			sendMessage(channel, sender+": I am a bot written in java, operated by "+ owner);
 		}
-		if(message.equalsIgnoreCase(botName+": quit") && sender.equalsIgnoreCase(owner))
+		else if(message.equalsIgnoreCase(botName+": quit") && sender.equalsIgnoreCase(owner))
 		{
 			sendMessage(channel, "Goodbye");
 			disconnect();
 		}
-		if(message.indexOf(botName+": join") > -1 && sender.equalsIgnoreCase(owner))
+		else if(message.indexOf(botName+": join") > -1 && sender.equalsIgnoreCase(owner))
 		{
 			String newChan = message.split("join ")[1];
 			joinChannel(newChan);
+		}
+		else if(message.indexOf(botName) < 1 && message.indexOf(botName) > -1)
+		{
+			sendMessage(channel, "You wanted an asinine comment, and now you have it. Happy?");
 		}
 	}
 	public void onPart(String channel, String sender, String login, String hostname)
