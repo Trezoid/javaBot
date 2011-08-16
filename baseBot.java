@@ -41,7 +41,7 @@ public class baseBot extends PircBot {
 	
 	public static void main(String[] args){
 		baseBot bot = new baseBot();
-		bot.setVerbose(true);
+		bot.setVerbose(false);
 		try{
 			bot.connect(bot.ircNet);
 
@@ -85,10 +85,14 @@ public class baseBot extends PircBot {
 
 	public void onMessage(String channel, String sender, String login, String hostname, String message)
 	{
+		DateFormat df = DateFormat.getInstance();
+
+		String time = df.format(new java.util.Date());
+		System.out.println(time + "| " + sender + ": " + message + "\n");
+	
 		log(channel, sender, message);
 		if(message.equalsIgnoreCase(botName+": time"))
 		{
-			String time = new java.util.Date().toString();
 			sendMessage(channel, sender + ": " + time);
 		}
 		else if(message.equalsIgnoreCase(botName+": about"))
@@ -112,11 +116,13 @@ public class baseBot extends PircBot {
 	}
 	public void onPart(String channel, String sender, String login, String hostname)
 	{
+		System.out.println(channel+": ====="+sender+" has left====");
 		log(channel, sender, "--Has quit--");
 	}
 
 	public void onJoin(String channel, String sender, String login, String hostname)
 	{
+		System.out.println(channel+": ===="+sender+" has joined====");
 		log(channel, sender, "--Has joined--");
 	}
 
@@ -125,6 +131,16 @@ public class baseBot extends PircBot {
 	{
 
 		System.exit(0);
+	}
+	
+	public void onKick(String channel, String kicker, String kickerLogin, String kickerHost,String nick, String reason)
+	{
+		if(nick.equalsIgnoreCase(botName))
+		{
+			System.out.println("======Bot kicked by "+kicker+" because "+reason+"=====");
+			System.out.println("======Rejoining=======");
+			joinChannel(channel);
+		}
 	}
 
 	public void log(String channel, String sender, String message)
