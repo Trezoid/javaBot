@@ -41,14 +41,14 @@ public class baseBot extends PircBot {
 	
 	public static void main(String[] args){
 		baseBot bot = new baseBot();
-		bot.setVerbose(false);
+		bot.setVerbose(true);
 		try{
 			bot.connect(bot.ircNet);
-
 		}
 		catch (Exception e){
 			System.out.println("Can't connect: "+e);
 		}
+		bot.setVerbose(false);
 		for(String c : bot.channels) {
 			bot.joinChannel(c);
 		}
@@ -88,7 +88,7 @@ public class baseBot extends PircBot {
 		DateFormat df = DateFormat.getInstance();
 
 		String time = df.format(new java.util.Date());
-		System.out.println(time + "| " + sender + ": " + message + "\n");
+		System.out.println(channel + ", " + time + " | " + sender + ": " + message);
 	
 		log(channel, sender, message);
 		if(message.equalsIgnoreCase(botName+": time"))
@@ -111,7 +111,7 @@ public class baseBot extends PircBot {
 		}
 		else if(message.indexOf(botName) < 1 && message.indexOf(botName) > -1)
 		{
-			sendMessage(channel, "You wanted an asinine comment, and now you have it. Happy?");
+			sendMessage(channel, sender + ": You wanted an asinine comment, and now you have it. Happy?");
 		}
 	}
 	public void onPart(String channel, String sender, String login, String hostname)
