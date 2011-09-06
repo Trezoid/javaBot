@@ -110,12 +110,10 @@ public class baseBot extends PircBot {
 			String[] parts = message.split(" ");
 			String chan = parts[2];
 			String toSend = "";
-			int i = 3;
 			String temp = "";
-			while((temp = parts[i]) != null)
+			for(int i = 3; i < parts.length; i++)
 			{
-				toSend += " "+temp;
-				i++;
+				toSend += " "+parts[i];
 			}
 			sendMessage(chan, toSend);
 		}
@@ -125,10 +123,10 @@ public class baseBot extends PircBot {
 			String newChan = message.split("join ")[1];
 			joinChannel(newChan);
 		}
-		else if(message.indexOf(botName) < 1 && message.indexOf(botName) > -1)
+		else if(message.indexOf(botName) < botName.length() && message.indexOf(botName) > -1)
 		{
 			String toAI = message.split(botName+": ")[1];
-			sendMessage(channel, sender + ai(toAI));
+			sendMessage(channel, sender + ": " + ai(toAI));
 		}
 	}
 	public void onPart(String channel, String sender, String login, String hostname)
@@ -186,7 +184,8 @@ public class baseBot extends PircBot {
 			conn.setRequestMethod("POST");
 			conn.setInstanceFollowRedirects(true);	
 			OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-			wr.write("m="+message);
+			String cleanMessage = message.replace("?", "%3F");
+			wr.write("m="+cleanMessage);
 			wr.flush();
 			BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			String line;	
@@ -194,7 +193,6 @@ public class baseBot extends PircBot {
 			{
 				result += line + "\r\n";
 			}
-			
 			rd.close();
 			wr.close();
 		}
@@ -202,11 +200,14 @@ public class baseBot extends PircBot {
 		{
 			System.out.println(e.getMessage());
 		}
-
-		String splitResult = result.split("<div id=\"originalmsg\">&#8220;"+message+"&#8221;</div>\r\n<h2>")[1];
+		try{
+		String splitResult = result.split("<h2>")[1];
 		String aiMessage = splitResult.split("</h2>")[0];
-
+		aiMessage = aiMessage.replace("&#8217;", "'").replace("&#8221;", "\"").replace("&#8220;", "\"").replace("#&8212;", "-").replace("&lt;br/&gt;", "\n");
 		return aiMessage;
+		}
+	catch(Exception e){System.out.println(e.getMessage());return "Message not found";}
+
 	}		
 }
 
