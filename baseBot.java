@@ -203,9 +203,8 @@ public class baseBot extends PircBot {
 			System.out.println(e.getMessage());
 		}
 
-		String splitResult = result.split("<div id=\"originalmsg\">&#8220;"+message+"&#8221;</div>")[1];
+		String splitResult = result.split("<div id=\"originalmsg\">&#8220;"+message+"&#8221;</div>\r\n<h2>")[1];
 		String aiMessage = splitResult.split("</h2>")[0];
-		aiMessage = aiMessage.replace("<h2>", "");
 
 		return aiMessage;
 	}		
