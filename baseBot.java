@@ -3,6 +3,7 @@ import java.io.*;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.net.*;
 
 public class baseBot extends PircBot {
 	private String owner = null;
@@ -104,6 +105,21 @@ public class baseBot extends PircBot {
 			sendMessage(channel, "Goodbye");
 			disconnect();
 		}
+		else if(message.indexOf(botName+": say") > -1 && sender.equalsIgnoreCase(owner))
+		{
+			String[] parts = message.split(" ");
+			String chan = parts[2];
+			String toSend = "";
+			int i = 3;
+			String temp = "";
+			while((temp = parts[i]) != null)
+			{
+				toSend += " "+temp;
+				i++;
+			}
+			sendMessage(chan, toSend);
+		}
+
 		else if(message.indexOf(botName+": join") > -1 && sender.equalsIgnoreCase(owner))
 		{
 			String newChan = message.split("join ")[1];
@@ -111,7 +127,8 @@ public class baseBot extends PircBot {
 		}
 		else if(message.indexOf(botName) < 1 && message.indexOf(botName) > -1)
 		{
-			sendMessage(channel, sender + ": You wanted an asinine comment, and now you have it. Happy?");
+			String toAI = message.split(botName+": ")[1];
+			sendMessage(channel, sender + ai(toAI));
 		}
 	}
 	public void onPart(String channel, String sender, String login, String hostname)
@@ -157,4 +174,40 @@ public class baseBot extends PircBot {
 		}
 		catch(Exception e){System.out.println(e.getMessage());}
 	}
+
+
+	public String ai(String message)
+	{
+		String result =  "";
+		try{ 
+			URL url = new URL("http://kato.botdom.com");
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setDoOutput(true);
+			conn.setRequestMethod("POST");
+			conn.setInstanceFollowRedirects(true);	
+			OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+			wr.write("m="+message);
+			wr.flush();
+			BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			String line;	
+			while ((line = rd.readLine()) != null) 
+			{
+				result += line + "\r\n";
+			}
+			
+			rd.close();
+			wr.close();
+		}
+		catch (Exception e) 
+		{
+			System.out.println(e.getMessage());
+		}
+
+		String splitResult = result.split("<div id=\"originalmsg\">&#8220;"+message+"&#8221;</div>")[1];
+		String aiMessage = splitResult.split("</h2>")[0];
+		aiMessage = aiMessage.replace("<h2>", "");
+
+		return aiMessage;
+	}		
 }
+
