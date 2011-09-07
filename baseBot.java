@@ -4,7 +4,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.net.*;
-
+import java.util.Random;
 public class baseBot extends PircBot {
 	private String owner = null;
 	private String botName = null;
@@ -123,10 +123,49 @@ public class baseBot extends PircBot {
 			String newChan = message.split("join ")[1];
 			joinChannel(newChan);
 		}
+		else if(message.indexOf(botName+": roll") > -1)
+		{
+			int numDice = 1;
+			int numSides = 6;
+
+			String rollSet = message.split("roll ")[1];
+			String[] dice = rollSet.toLowerCase().split("d");
+			
+			numDice = Integer.parseInt(dice[0]);
+			if(numDice > 20)
+			{
+				sendMessage(channel, sender+": I'm sorry, the number of dice you wanted is too large. Please choose a smaller number and try again.");
+			}
+			else{
+			numSides = Integer.parseInt(dice[1]);
+		
+			String allRolls = "";		
+			int totalRoll = 0;
+			Random r = new Random();
+			int[] rolls = new int[numDice];
+			for(int i = 0; i < numDice; i++)
+			{
+				rolls[i] = r.nextInt(numSides + 1);
+				totalRoll += rolls[i];
+				allRolls += rolls[i]+ ", ";	
+			}
+
+			String output = "You have rolled "+numDice+" Dice, each with "+numSides+" sides. The total is "+totalRoll+" which is made up of " + allRolls;
+			
+			sendMessage(channel, sender + ": " + output);
+			}
+		}
 		else if(message.indexOf(botName) < botName.length() && message.indexOf(botName) > -1)
 		{
 			String toAI = message.split(botName+": ")[1];
 			sendMessage(channel, sender + ": " + ai(toAI));
+		}
+
+		else if(message.indexOf("http://") > -1 || message.indexOf("https://") > -1)
+		{
+			String urlGrab = message.substring(message.indexOf("http"), message.length());
+			urlGrab = urlGrab.split(" ")[0];
+			sendMessage(channel, "URL TITLE: " + getTitle(urlGrab));
 		}
 	}
 	public void onPart(String channel, String sender, String login, String hostname)
@@ -208,6 +247,35 @@ public class baseBot extends PircBot {
 		}
 	catch(Exception e){System.out.println(e.getMessage());return "Message not found";}
 
-	}		
+	}
+	public String getTitle(String grabbedURL)
+	{
+		String result = "";
+		try{ 
+			URL url = new URL(grabbedURL);
+			URLConnection conn = url.openConnection();
+			BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			String line;
+			String prevLine = "";	
+			while ((line = rd.readLine()) != null) 
+			{
+				if(prevLine.indexOf("</title>") < 0)
+				{
+					result += line + "\r\n";
+					prevLine = line;
+				}
+				else{rd.close();}
+			}
+			rd.close();
+		}
+		catch (Exception e) 
+		{
+			System.out.println(e.getMessage());
+		}
+
+		result = result.split("<title>")[1].split("</title>")[0];
+		result = result.replace("&amp;", "&");
+		return result;
+	}	
 }
 
