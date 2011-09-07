@@ -53,7 +53,7 @@ public class Utils
 		}
 
 		result = result.split("<title>")[1].split("</title>")[0];
-		result = result.replace("&amp;", "&");
+		result = result.replace("&amp;", "&").replace("\r\n", "");
 		return result;
 	}
 	
