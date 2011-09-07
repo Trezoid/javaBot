@@ -10,7 +10,7 @@ public class baseBot extends PircBot {
 	private String botName = null;
 	private String ircNet = null;
 	private ArrayList<String> channels = new ArrayList<String>();
-
+	private Module m = null;
 	public baseBot(){
 		try{
 
@@ -37,6 +37,7 @@ public class baseBot extends PircBot {
 			
 
 		setName(botName);
+		m = new Module(owner, botName);
 		log("","","=====Bot started=====");
 	}
 	
@@ -92,80 +93,21 @@ public class baseBot extends PircBot {
 		System.out.println(channel + ", " + time + " | " + sender + ": " + message);
 	
 		log(channel, sender, message);
-		if(message.equalsIgnoreCase(botName+": time"))
+		if(sender.equalsIgnoreCase(owner) && message.indexOf("quit") > -1)
 		{
-			sendMessage(channel, sender + ": " + time);
+			quit();
 		}
-		else if(message.equalsIgnoreCase(botName+": about"))
+		else if(sender.equalsIgnoreCase(owner) && message.indexOf("say") > -1)
 		{
-			sendMessage(channel, sender+": I am a bot written in java, operated by "+ owner);
+			say(message);
 		}
-		else if(message.equalsIgnoreCase(botName+": quit") && sender.equalsIgnoreCase(owner))
+		else if(sender.equalsIgnoreCase(owner) && message.indexOf("join") > -1)
 		{
-			sendMessage(channel, "Goodbye");
-			disconnect();
+			join(message);
 		}
-		else if(message.indexOf(botName+": say") > -1 && sender.equalsIgnoreCase(owner))
+		else if((message.indexOf(botName) < botName.length() && message.indexOf(botName) > -1) || message.indexOf("http://") > -1 || message.indexOf("https://") > -1) 
 		{
-			String[] parts = message.split(" ");
-			String chan = parts[2];
-			String toSend = "";
-			String temp = "";
-			for(int i = 3; i < parts.length; i++)
-			{
-				toSend += " "+parts[i];
-			}
-			sendMessage(chan, toSend);
-		}
-
-		else if(message.indexOf(botName+": join") > -1 && sender.equalsIgnoreCase(owner))
-		{
-			String newChan = message.split("join ")[1];
-			joinChannel(newChan);
-		}
-		else if(message.indexOf(botName+": roll") > -1)
-		{
-			int numDice = 1;
-			int numSides = 6;
-
-			String rollSet = message.split("roll ")[1];
-			String[] dice = rollSet.toLowerCase().split("d");
-			
-			numDice = Integer.parseInt(dice[0]);
-			if(numDice > 20)
-			{
-				sendMessage(channel, sender+": I'm sorry, the number of dice you wanted is too large. Please choose a smaller number and try again.");
-			}
-			else{
-			numSides = Integer.parseInt(dice[1]);
-		
-			String allRolls = "";		
-			int totalRoll = 0;
-			Random r = new Random();
-			int[] rolls = new int[numDice];
-			for(int i = 0; i < numDice; i++)
-			{
-				rolls[i] = r.nextInt(numSides + 1);
-				totalRoll += rolls[i];
-				allRolls += rolls[i]+ ", ";	
-			}
-
-			String output = "You have rolled "+numDice+" Dice, each with "+numSides+" sides. The total is "+totalRoll+" which is made up of " + allRolls;
-			
-			sendMessage(channel, sender + ": " + output);
-			}
-		}
-		else if(message.indexOf(botName) < botName.length() && message.indexOf(botName) > -1)
-		{
-			String toAI = message.split(botName+": ")[1];
-			sendMessage(channel, sender + ": " + ai(toAI));
-		}
-
-		else if(message.indexOf("http://") > -1 || message.indexOf("https://") > -1)
-		{
-			String urlGrab = message.substring(message.indexOf("http"), message.length());
-			urlGrab = urlGrab.split(" ")[0];
-			sendMessage(channel, "URL TITLE: " + getTitle(urlGrab));
+			sendMessage(channel, sender+": "+m.doMod(message));
 		}
 	}
 	public void onPart(String channel, String sender, String login, String hostname)
@@ -213,69 +155,32 @@ public class baseBot extends PircBot {
 	}
 
 
-	public String ai(String message)
+/***********
+* Core admin functions
+*/
+	public void quit()
 	{
-		String result =  "";
-		try{ 
-			URL url = new URL("http://kato.botdom.com");
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setDoOutput(true);
-			conn.setRequestMethod("POST");
-			conn.setInstanceFollowRedirects(true);	
-			OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-			String cleanMessage = message.replace("?", "%3F");
-			wr.write("m="+cleanMessage);
-			wr.flush();
-			BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			String line;	
-			while ((line = rd.readLine()) != null) 
-			{
-				result += line + "\r\n";
-			}
-			rd.close();
-			wr.close();
-		}
-		catch (Exception e) 
-		{
-			System.out.println(e.getMessage());
-		}
-		try{
-		String splitResult = result.split("<h2>")[1];
-		String aiMessage = splitResult.split("</h2>")[0];
-		aiMessage = aiMessage.replace("&#8217;", "'").replace("&#8221;", "\"").replace("&#8220;", "\"").replace("#&8212;", "-").replace("&lt;br/&gt;", "\n");
-		return aiMessage;
-		}
-	catch(Exception e){System.out.println(e.getMessage());return "Message not found";}
-
+			disconnect();
 	}
-	public String getTitle(String grabbedURL)
+
+	public void say(String message)
 	{
-		String result = "";
-		try{ 
-			URL url = new URL(grabbedURL);
-			URLConnection conn = url.openConnection();
-			BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			String line;
-			String prevLine = "";	
-			while ((line = rd.readLine()) != null) 
+
+			String[] parts = message.split(" ");
+			String chan = parts[2];
+			String toSend = "";
+			String temp = "";
+			for(int i = 3; i < parts.length; i++)
 			{
-				if(prevLine.indexOf("</title>") < 0)
-				{
-					result += line + "\r\n";
-					prevLine = line;
-				}
-				else{rd.close();}
+				toSend += " "+parts[i];
 			}
-			rd.close();
-		}
-		catch (Exception e) 
-		{
-			System.out.println(e.getMessage());
-		}
-
-		result = result.split("<title>")[1].split("</title>")[0];
-		result = result.replace("&amp;", "&");
-		return result;
-	}	
+			sendMessage(chan, toSend);
+	}
+	
+	public void join(String message)
+	{
+			String newChan = message.split("join ")[1];
+			joinChannel(newChan);
+	}
+	
 }
-
