@@ -107,7 +107,7 @@ public class baseBot extends PircBot {
 		}
 		else if((message.indexOf(botName) < botName.length() && message.indexOf(botName) > -1) || message.indexOf("http://") > -1 || message.indexOf("https://") > -1) 
 		{
-			sendMessage(channel, sender+": "+m.doMod(message));
+			sendMessage(channel, sender+": "+m.doMod(message, sender));
 		}
 	}
 	public void onPart(String channel, String sender, String login, String hostname)

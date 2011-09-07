@@ -3,17 +3,17 @@ import java.io.*;
 public class AI
 {
 	private String botName = "";
-	public AI(String botName)
+	public AI(String Name)
 	{
-		botName = this.botName;
+		botName = Name;
 	}
 
-	public String getAIResponse(String message)
+	public String getAIResponse(String message, String sender)
 	{
 			String toAI = message.split(botName+": ")[1];
-			return ai(toAI);
+			return ai(toAI, sender);
 	}
-	public String ai(String message)
+	public String ai(String message, String sender)
 	{
 		String result =  "";
 		try{ 
@@ -42,7 +42,7 @@ public class AI
 		try{
 		String splitResult = result.split("<h2>")[1];
 		String aiMessage = splitResult.split("</h2>")[0];
-		aiMessage = aiMessage.replace("&#8217;", "'").replace("&#8221;", "\"").replace("&#8220;", "\"").replace("#&8212;", "-").replace("&lt;br/&gt;", "\n");
+		aiMessage = aiMessage.replace("&#8217;", "'").replace("&#8221;", "\"").replace("&#8220;", "\"").replace("#&8212;", "-").replace("&lt;br/&gt;", "\n").replace("Kato", botName).replace("undefined", sender);
 		return aiMessage;
 		}
 	catch(Exception e){System.out.println(e.getMessage());return "Message not found";}

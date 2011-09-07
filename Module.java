@@ -15,7 +15,7 @@ public class Module
 		owner = own;
 	}
 
-	public String doMod(String message)
+	public String doMod(String message, String sender)
 	{
 		/*
 		* Games
@@ -51,7 +51,7 @@ public class Module
 		* AI
 		*/
 		else{
-			return ai.getAIResponse(message);
+			return ai.getAIResponse(message, sender);
 		}
 
 	}
