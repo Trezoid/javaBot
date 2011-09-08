@@ -112,7 +112,7 @@ public class AI
 		aiMessage = aiMessage.replace("&#8217;", "'").replace("&#8221;", "\"").replace("&#8220;", "\"").replace("#&8212;", "-").replace("&lt;br/&gt;", "\n").replace("Kato", botName).replace("undefined", sender);
 		return aiMessage;
 		}
-	catch(Exception e){System.out.println(e.getMessage());return "Message not found";}
+	catch(Exception e){System.out.println(e.getMessage());return "My brain seems to be asleep. Sorry about that.";}
 
 	}
 
